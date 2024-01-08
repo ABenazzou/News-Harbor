@@ -531,7 +531,7 @@ def upload_scraped_data(**kwargs):
 default_args = {
     'owner': 'Adnane',
     'depends_on_past': False, # Previous Fails doesn't stop it from triggering
-    'start_date': datetime(2024, 1, 7), # January 7th, 2024 (7th for historicall and 8th for daily)
+    'start_date': datetime(2024, 1, 8), # January 8th, 2024 
     'end_date': datetime(2024, 1, 13), # January 13th, 2024, daily collections as full 3 months run was triggered manually through airflow ui
     'email': ['adnanebenzo194@gmail.com'],
     'email_on_failure': True,
