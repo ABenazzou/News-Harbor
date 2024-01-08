@@ -32,6 +32,7 @@ def get_scrape_historical_limit(**kwargs):
 
         s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         s3_bucket = s3_client.list_objects_v2(Bucket=s3_bucket_name, StartAfter ="raw-data/")
+        
         return "Contents" not in s3_bucket
 
 
@@ -40,8 +41,10 @@ def get_scrape_historical_limit(**kwargs):
         from dateutil.relativedelta import relativedelta
 
         if not is_empty_s3_bucket:
+            
             return date.today().strftime("%Y-%m-%d")
         else:
+            
             return (date.today() + relativedelta(months=-3)).strftime("%Y-%m-%d")
         
     
@@ -53,6 +56,7 @@ def get_scrape_historical_limit(**kwargs):
     
 @task(task_id="scrape_bbc_articles")
 def scrape_bbc_articles(**kwargs):
+    
     ACTIVE_MENU = None
     ACTIVE_SUBMENU = None
    
@@ -64,8 +68,8 @@ def scrape_bbc_articles(**kwargs):
     VISITED_ARTICLES = set()
     
     
-
     def scrape_articles_from_main_ui(driver, root_tab, menu_tab, submenu_tab, scrape_date):
+        
         total_pages = driver.find_element(By.CLASS_NAME, "qa-pagination-total-page-number")
         total_pages = int(total_pages.text)
         current_page = 1
@@ -91,6 +95,7 @@ def scrape_bbc_articles(**kwargs):
 
 
     def scrape_articles_from_secondary_ui(driver, root_tab, menu_tab, submenu_tab, scrape_date):
+        
         total_pages = driver.find_elements(By.XPATH, '//nav[contains(@class, "ssrcss-1we4v4l-Pagination")]/div/div/div[contains(@class, "ssrcss-17k7p6q-SummaryContainer")]/div/b')
         first_match = int(total_pages[0].get_attribute("innerText"))
         second_match = int(total_pages[1].get_attribute("innerText"))
@@ -129,6 +134,7 @@ def scrape_bbc_articles(**kwargs):
 
 
     def scrape_articles(driver, root_tab, menu_tab, submenu_tab, scrape_date):
+        
         try:
             scrape_articles_from_main_ui(driver, root_tab, menu_tab, submenu_tab, scrape_date)
             
@@ -148,99 +154,109 @@ def scrape_bbc_articles(**kwargs):
             scrape_articles(driver, root_tab, menu_tab, submenu_tab, scrape_date)
         
 
+    '''
     # OBSOLETE
-    # def gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date):
+    def gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date):
 
-    #     cards_XPATH = '//a[contains(@class, "gs-c-promo-heading")]' 
-    #     latest_news_XPATH = '//div[@class="gs-o-media__body"]/h3/a' 
+        cards_XPATH = '//a[contains(@class, "gs-c-promo-heading")]' 
+        latest_news_XPATH = '//div[@class="gs-o-media__body"]/h3/a' 
         
-    #     cards_alternative_XPATH = '//div[contains(@class, "ssrcss-tq7xfh-PromoContent")]/div/a'
-    #     latest_news_alternative_XPATH = '//ol[contains(@class, "ssrcss-jv9lse-Stack")]/li/div/div/div/div/a'
+        cards_alternative_XPATH = '//div[contains(@class, "ssrcss-tq7xfh-PromoContent")]/div/a'
+        latest_news_alternative_XPATH = '//ol[contains(@class, "ssrcss-jv9lse-Stack")]/li/div/div/div/div/a'
 
-    #     cards = driver.find_elements(By.XPATH, cards_XPATH)
-    #     latest_news = driver.find_elements(By.XPATH, latest_news_XPATH)
-    #     page_news = cards + latest_news
+        cards = driver.find_elements(By.XPATH, cards_XPATH)
+        latest_news = driver.find_elements(By.XPATH, latest_news_XPATH)
+        page_news = cards + latest_news
         
-    #     if not page_news:
-    #         cards = driver.find_elements(By.XPATH, cards_alternative_XPATH)
-    #         latest_news = driver.find_elements(By.XPATH, latest_news_alternative_XPATH)
-    #         page_news = cards + latest_news
+        if not page_news:
+            cards = driver.find_elements(By.XPATH, cards_alternative_XPATH)
+            latest_news = driver.find_elements(By.XPATH, latest_news_alternative_XPATH)
+            page_news = cards + latest_news
             
-    #     latest_news = set(latest_news)
-    #     cards = set(cards)
+        latest_news = set(latest_news)
+        cards = set(cards)
 
-    #     try:
-    #         for article in page_news:
+        try:
+            for article in page_news:
 
-    #             is_latest_news = article in latest_news
-    #             uri = article.get_attribute('href')
+                is_latest_news = article in latest_news
+                uri = article.get_attribute('href')
 
-    #             if uri in VISITED_ARTICLES: continue
+                if uri in VISITED_ARTICLES: continue
                 
-    #             if not ('/news/' in uri) or '/live/' in uri or '/resources/' in uri: continue # we want only articles aka /news
+                if not ('/news/' in uri) or '/live/' in uri or '/resources/' in uri: continue # we want only articles aka /news
                 
-    #             ActionChains(driver).move_to_element(article).key_down(Keys.CONTROL).click(article).key_up(Keys.CONTROL).perform()
+                ActionChains(driver).move_to_element(article).key_down(Keys.CONTROL).click(article).key_up(Keys.CONTROL).perform()
 
-    #             tabs = driver.window_handles
+                tabs = driver.window_handles
                 
-    #             for article_tab in tabs:
-    #                 if (article_tab != root_tab and article_tab != menu_tab and article_tab != submenu_tab):break
+                for article_tab in tabs:
+                    if (article_tab != root_tab and article_tab != menu_tab and article_tab != submenu_tab):break
                     
-    #             driver.switch_to.window(article_tab)
-    #             logging.info("Switched to article tab")
-    #             import time
-    #             time.sleep(1)
-    #             # give 1 second to have the tab open with all necessary scrape info
+                driver.switch_to.window(article_tab)
+                logging.info("Switched to article tab")
+                import time
+                time.sleep(1)
+                # give 1 second to have the tab open with all necessary scrape info
                 
-    #             is_valid_article = scrape_article(driver, menu_tab, submenu_tab, uri, is_latest_news, scrape_date)
+                is_valid_article = scrape_article(driver, menu_tab, submenu_tab, uri, is_latest_news, scrape_date)
 
-    #             if (is_valid_article or is_valid_article == None):
-    #                 VISITED_ARTICLES.add(uri)
+                if (is_valid_article or is_valid_article == None):
+                    VISITED_ARTICLES.add(uri)
 
-    #             else:
-    #                 driver.close()
-    #                 logging.info("Closed article tab")
-    #                 # return False no need to scrape further
-    #                 driver.switch_to.window(submenu_tab if submenu_tab else menu_tab)
-    #                 logging.info("Switched to secondary if secondary else primary")
+                else:
+                    driver.close()
+                    logging.info("Closed article tab")
+                    
+                    # return False no need to scrape further
+                    driver.switch_to.window(submenu_tab if submenu_tab else menu_tab)
+                    logging.info("Switched to secondary if secondary else primary")
 
-    #                 logging.info("Stopping scraping of category due to historical limit")
-    #                 return False
+                    logging.info("Stopping scraping of category due to historical limit")
+                    
+                    return False
 
-    #             driver.close()
-    #             logging.info("Closed article tab")
-    #             driver.switch_to.window(submenu_tab if submenu_tab else menu_tab)
-    #             logging.info("Switched to secondary if secondary else primary")
+                driver.close()
+                logging.info("Closed article tab")
+                driver.switch_to.window(submenu_tab if submenu_tab else menu_tab)
+                logging.info("Switched to secondary if secondary else primary")
 
-    #         return True # finished scraping page and no old elemnent in latest news
-    #     except (StaleElementReferenceException, NoSuchElementException):
-    #         # refresh and retry
-    #         driver.refresh()
-    #         return gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date)
-    #     except (ElementNotInteractableException):
+            return True # finished scraping page and no old elemnent in latest news
+        except (StaleElementReferenceException, NoSuchElementException):
+            # refresh and retry
+            driver.refresh()
+            
+            return gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date)
+        except (ElementNotInteractableException):
 
-    #         driver.execute_script("arguments[0].click();", article)
-    #         is_valid_article = scrape_article(driver, menu_tab, submenu_tab, uri, is_latest_news, scrape_date)
+            driver.execute_script("arguments[0].click();", article)
+            is_valid_article = scrape_article(driver, menu_tab, submenu_tab, uri, is_latest_news, scrape_date)
 
-    #         if (is_valid_article or is_valid_article == None):
-    #             VISITED_ARTICLES.add(uri)
-    #         else:
-    #             # return False no need to scrape further
-    #             # driver.close() # DO NOT CLOSE AS WE ARE ON THE SAME TAB
-    #             logging.info("Stopping scraping of category due to historical limit")
+            if (is_valid_article or is_valid_article == None):
+                VISITED_ARTICLES.add(uri)
+            else:
+            
+                # return False no need to scrape further
+                # driver.close() # DO NOT CLOSE AS WE ARE ON THE SAME TAB
+                logging.info("Stopping scraping of category due to historical limit")
 
-    #             driver.back()
-    #             return False
+                driver.back()
+                
+                return False
 
-    #         driver.back()
-    #         driver.refresh()
-    #         return gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date)
+            driver.back()
+            driver.refresh()
+            
+            return gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date)
+    '''
         
         
     def get_article_data(article, latest_news, menu_tab, submenu_tab, scrape_date):
+        
         # new hybrid way
         is_latest_news = article[0] in latest_news
         uri = article[1]
+        
         if uri in VISITED_ARTICLES: return None
         
         if not ('/news/' in uri) or '/live/' in uri or '/resources/' in uri: return None # we want only articles aka /news
@@ -250,6 +266,7 @@ def scrape_bbc_articles(**kwargs):
        
     
     def gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date):
+        
         # new hybrid approach
         from concurrent.futures import ThreadPoolExecutor as thread_executor
         from itertools import repeat
@@ -293,52 +310,61 @@ def scrape_bbc_articles(**kwargs):
 
             return should_continue_scraping
     
+    
+    '''
     # OBSOLETE
-    # def scrape_article(driver, menu, submenu, uri, is_latest_news, scrape_date): 
-    #     nonlocal ACTIVE_MENU
-    #     nonlocal ACTIVE_SUBMENU
-    #     nonlocal SCRAPED_DATA
+    def scrape_article(driver, menu, submenu, uri, is_latest_news, scrape_date): 
+    
+        nonlocal ACTIVE_MENU
+        nonlocal ACTIVE_SUBMENU
+        nonlocal SCRAPED_DATA
         
-    #     logging.info("Currently at article: %s", uri)
-    #     try:
-    #         date_posted = get_date_posted(driver)
-    #         if date_posted < scrape_date:
-    #             # article posted before our tolerance
-    #             if is_latest_news:
-    #                 return False
-    #             else:
-    #                 return None
+        logging.info("Currently at article: %s", uri)
+        try:
+            date_posted = get_date_posted(driver)
+            if date_posted < scrape_date:
+                # article posted before our tolerance
+                if is_latest_news:
+    
+                    return False
+                else:
+    
+                    return None
                 
-    #         title = get_title(driver)
-    #         subtitle = get_subtitle(driver)
-    #         full_text = get_full_text(driver)
-    #         topics = get_topics(driver)
-    #         images = get_images(driver)
-    #         authors = get_authors(driver)
-    #         # video = get_video(driver)
-    #         scraped_object = {
-    #             "id": uri,
-    #             "title": title,
-    #             "subtitle": subtitle,
-    #             "date_posted": date_posted,
-    #             "full_text": full_text,
-    #             "topics": topics,
-    #             "images": images,
-    #             "authors": authors,
-    #             # "video": video,
-    #             "menu": ACTIVE_MENU,
-    #             "submenu": ACTIVE_SUBMENU
-    #         }   
+            title = get_title(driver)
+            subtitle = get_subtitle(driver)
+            full_text = get_full_text(driver)
+            topics = get_topics(driver)
+            images = get_images(driver)
+            authors = get_authors(driver)
+            # video = get_video(driver)
+            scraped_object = {
+                "id": uri,
+                "title": title,
+                "subtitle": subtitle,
+                "date_posted": date_posted,
+                "full_text": full_text,
+                "topics": topics,
+                "images": images,
+                "authors": authors,
+                # "video": video,
+                "menu": ACTIVE_MENU,
+                "submenu": ACTIVE_SUBMENU
+            }   
 
-    #         SCRAPED_DATA.append(scraped_object)
-    #         return True
+            SCRAPED_DATA.append(scraped_object)
+    
+            return True
 
-    #     except WebDriverException:
-    #         driver.refresh()
-    #         return scrape_article(driver, menu, submenu, uri, is_latest_news, scrape_date)
+        except WebDriverException:
+            driver.refresh()
+    
+            return scrape_article(driver, menu, submenu, uri, is_latest_news, scrape_date)
+    '''
         
         
     def scrape_article(menu, submenu, uri, is_latest_news, scrape_date): 
+        
         nonlocal ACTIVE_MENU
         nonlocal ACTIVE_SUBMENU
         nonlocal SCRAPED_DATA
@@ -358,12 +384,8 @@ def scrape_bbc_articles(**kwargs):
         if date_posted < scrape_date:
             # article posted before our tolerance
             VISITED_ARTICLES.add(uri)
-
-            if is_latest_news:
-                return False
-            else:
-                # return None
-                return True
+            
+            return not is_latest_news
             
         title = get_title(article_dom)
         subtitle = get_subtitle(article_dom)
@@ -389,22 +411,28 @@ def scrape_bbc_articles(**kwargs):
         logging.info(scraped_object)
         
         SCRAPED_DATA.append(scraped_object)
+        
         return True
 
 
     def get_title(dom):
+        
         title_XPATH = '//h1[@id="main-heading"]'
         title = dom.xpath(title_XPATH)
+        
         return ''.join(title[0].itertext()).strip().replace(";", ":") if title else None
 
 
     def get_subtitle(dom):
+        
         subtitle_XPATH = '//b[contains(@class, "ssrcss-hmf8ql-BoldText")]' # if exists
         subtitle = dom.xpath(subtitle_XPATH)
+        
         return ''.join(subtitle[0].itertext()).strip().replace(";", ":") if subtitle else None
 
 
     def get_date_posted(dom):
+        
         import dateparser
         
         date_posted_XPATH = '//time' #convert to datetime
@@ -414,6 +442,7 @@ def scrape_bbc_articles(**kwargs):
         if not date_posted:
             from dateutil.relativedelta import relativedelta
             from datetime import date
+            
             return (date.today() + relativedelta(days=10)).strftime('%Y-%m-%d')
         
         else:
@@ -428,22 +457,27 @@ def scrape_bbc_articles(**kwargs):
             timestamp = dateparser.parse(date_posted.get("datetime")).timestamp()
 
         datetime_object = datetime.fromtimestamp(timestamp)
+        
         return datetime_object.strftime('%Y-%m-%d')
         
 
     def get_full_text(dom):
+        
         text_XPATH = '//div[@data-component="text-block"]'
         
         full_text = dom.xpath(text_XPATH)
         
         if full_text:
             article_text = ' '.join(''.join(paragraph.itertext()).strip().replace(";", ":") for paragraph in full_text)
+            
             return article_text
         else:
+            
             return None
         
 
     def get_topics(dom):
+        
         topics_XPATH = '//div[contains(@class, "ssrcss-1szabdv-StyledTagContainer")]/div/ul/li'
         topics = dom.xpath(topics_XPATH)
 
@@ -451,12 +485,15 @@ def scrape_bbc_articles(**kwargs):
 
 
     def get_images(dom):
+        
         images_XPATH = '//div[@data-component="image-block"]//img'
         images = dom.xpath(images_XPATH)
+        
         return [image.get("src") for image in images] if images else None
 
 
     def get_authors(dom):
+        
         authors_XPATH = '//div[@data-component="byline-block"]/div/div[contains(@class, "ssrcss-h3c0s8-ContributorContainer")]/div[contains(@class, "ssrcss-1u2in0b-Container-ContributorDetails")]/div'
         authors = dom.xpath(authors_XPATH)
         
@@ -465,21 +502,27 @@ def scrape_bbc_articles(**kwargs):
     
     ''' OBSOLETE SECTION
     def get_title(driver):
+    
         title_XPATH = '//h1[@id="main-heading"]'
         title = driver.find_element(By.XPATH, title_XPATH)
+        
         return title.text if title else None
 
 
     def get_subtitle(driver):
+    
         try:
             subtitle_XPATH = '//b[contains(@class, "ssrcss-hmf8ql-BoldText")]' # if exists
             subtitle = driver.find_element(By.XPATH, subtitle_XPATH)
+            
             return subtitle.text
         except NoSuchElementException:
+        
             return None
 
 
     def get_date_posted(driver):
+    
         import dateparser
         
         try:
@@ -496,28 +539,35 @@ def scrape_bbc_articles(**kwargs):
                     timestamp = dateparser.parse(date_posted.get_attribute("datetime")).timestamp()
 
                 datetime_object = datetime.fromtimestamp(timestamp)
+                
                 return datetime_object.strftime('%Y-%m-%d')
+                
         except NoSuchElementException:
             driver.refresh()
             import time
             time.sleep(1)
             get_date_posted(driver) # Date is always there
+            
             # return None
 
 
     def get_full_text(driver):
+    
         text_XPATH = '//div[@data-component="text-block"]'
         
         full_text = driver.find_elements(By.XPATH, text_XPATH)
         
         if full_text:
             article_text = ' '.join(paragraph.text for paragraph in full_text)
+            
             return article_text
         else:
+        
             return None
         
 
     def get_topics(driver):
+    
         topics_XPATH = '//div[contains(@class, "ssrcss-1szabdv-StyledTagContainer")]/div/ul/li'
         topics = driver.find_elements(By.XPATH, topics_XPATH)
 
@@ -525,12 +575,15 @@ def scrape_bbc_articles(**kwargs):
 
 
     def get_images(driver):
+    
         images_XPATH = '//div[@data-component="image-block"]/@src'
         images = driver.find_elements(By.XPATH, images_XPATH)
+        
         return [image.text for image in images] if images else None
 
 
     def get_authors(driver):
+    
         authors_XPATH = '//div[@data-component="byline-block"]/div/div[contains(@class, "ssrcss-h3c0s8-ContributorContainer")]/div[contains(@class, "ssrcss-1u2in0b-Container-ContributorDetails")]/div'
         authors = driver.find_elements(By.XPATH, authors_XPATH)
         
@@ -538,6 +591,7 @@ def scrape_bbc_articles(**kwargs):
         
         
     # def get_video(driver):
+    
     #     try:
     #         play_button_XPATH = '//button[contains(@class, "p_button") and contains(@class,"p_cta")]'
     #         import time 
@@ -552,12 +606,15 @@ def scrape_bbc_articles(**kwargs):
     #         video_XPATH = '//video[@id="p_v_player_0"]/@src'
     #         video = driver.find_element(By.XPATH, video_XPATH)
     #     except NoSuchElementException:
+    
     #         return None
+    
     #     return video.text
     '''
         
         
     def scrape_secondary_menu(driver, parent_tab, tab, submenu, scrape_date):
+        
         nonlocal ACTIVE_SUBMENU
         nonlocal VISITED_SECONDARY_MENU
         
@@ -590,6 +647,7 @@ def scrape_bbc_articles(**kwargs):
 
     
     def refresh_scrape_secondary_menu(driver, parent_tab, tab, scrape_date):
+        
         nonlocal ACTIVE_SUBMENU
         
         # SECONDARY OPTIONS ---------------------------------------------------------
@@ -624,6 +682,7 @@ def scrape_bbc_articles(**kwargs):
             
             
     def scrape_main_menu(driver, menu_name, menu_element, scrape_date):
+        
         nonlocal ACTIVE_MENU
         nonlocal ACTIVE_SUBMENU
         
@@ -653,6 +712,7 @@ def scrape_bbc_articles(**kwargs):
 
     
     def save_scrapped_data(SCRAPED_DATA):
+        
         import pandas as pd
         from datetime import date
         
@@ -662,10 +722,12 @@ def scrape_bbc_articles(**kwargs):
         file_path = f"./data/{file_name}"
         
         bbc_df.to_csv(file_path, index=False)
+        
         return {"name": file_name, "path": file_path}
         
         
     def discover_main_menu_elements(driver, scrape_date):
+        
         nonlocal VISITED_MAIN_MENU
 
         try:
@@ -718,6 +780,7 @@ def scrape_bbc_articles(**kwargs):
             logging.info("Refreshed driver from discover main menu")
             driver.refresh()
             discover_main_menu_elements(driver)
+                
                 
     def initialize_scraping(base_url, scrape_date):
         
