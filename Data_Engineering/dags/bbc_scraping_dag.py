@@ -11,17 +11,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import logging    
 
-@task(task_id="scrape_bbc_articles")
-def scrape_bbc_articles(**kwargs):
-    ACTIVE_MENU = None
-    ACTIVE_SUBMENU = None
-   
-    # sets to keep track of menus to skip if there is a stale element on menus 
-    VISITED_MAIN_MENU = set()
-    VISITED_SECONDARY_MENU = set()
-   
-    SCRAPED_DATA = [] # to be pushed to next task
-    VISITED_ARTICLES = set()
+
+@task(task_id="get_scrape_historical_limit")
+def get_scrape_historical_limit(**kwargs):
+    
     
     def is_empty_s3_bucket():
         # to be stored in config.conf
@@ -50,7 +43,27 @@ def scrape_bbc_articles(**kwargs):
             return date.today().strftime("%Y-%m-%d")
         else:
             return (date.today() + relativedelta(months=-3)).strftime("%Y-%m-%d")
-
+        
+    
+    is_empty_s3 = is_empty_s3_bucket()
+    scrape_date = get_scrape_date(is_empty_s3)
+    
+    return scrape_date
+    
+    
+@task(task_id="scrape_bbc_articles")
+def scrape_bbc_articles(**kwargs):
+    ACTIVE_MENU = None
+    ACTIVE_SUBMENU = None
+   
+    # sets to keep track of menus to skip if there is a stale element on menus 
+    VISITED_MAIN_MENU = set()
+    VISITED_SECONDARY_MENU = set()
+   
+    SCRAPED_DATA = [] # to be pushed to next task
+    VISITED_ARTICLES = set()
+    
+    
 
     def scrape_articles_from_main_ui(driver, root_tab, menu_tab, submenu_tab, scrape_date):
         total_pages = driver.find_element(By.CLASS_NAME, "qa-pagination-total-page-number")
@@ -706,10 +719,7 @@ def scrape_bbc_articles(**kwargs):
             driver.refresh()
             discover_main_menu_elements(driver)
                 
-    def initialize_scraping(base_url):
-        is_empty_s3 = is_empty_s3_bucket()
-
-        scrape_date = get_scrape_date(is_empty_s3)
+    def initialize_scraping(base_url, scrape_date):
         
         driver.get(base_url)
         logging.info(scrape_date)
@@ -719,7 +729,8 @@ def scrape_bbc_articles(**kwargs):
             
         return SCRAPED_DATA
     
-    # task_instance = kwargs['ti']
+    task_instance = kwargs['ti']
+    scrape_date = task_instance.xcom_pull(task_ids="get_scrape_historical_limit")
     
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--no-sandbox')
@@ -732,7 +743,7 @@ def scrape_bbc_articles(**kwargs):
     
     logging.info("Initialized driver...")
         
-    data = initialize_scraping("https://www.bbc.co.uk/news") # trigger task
+    data = initialize_scraping("https://www.bbc.co.uk/news", scrape_date) # trigger task
     
     return save_scrapped_data(data)
     
@@ -784,4 +795,4 @@ with DAG(
         tags=["Scraping", "Data Engineering"] 
     ) as dag:
     
-    scrape_bbc_articles() >> upload_scraped_data()
+    get_scrape_historical_limit() >> scrape_bbc_articles() >> upload_scraped_data()
