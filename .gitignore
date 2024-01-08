@@ -1,0 +1,5 @@
+Data_Engineering/logs/*
+Data_Engineering/.env
+Data_Engineering/config/*
+!Data_Engineering/logs/README.MD
+!Data_Engineering/config/README.MD
