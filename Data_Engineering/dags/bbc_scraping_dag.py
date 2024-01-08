@@ -780,7 +780,7 @@ default_args = {
 with DAG(
         dag_id='scrape_bbc',
         default_args=default_args,
-        schedule_interval='0 22 * * *', # every day before midnight, (clean/upsert worst case for data cleaning)
+        schedule_interval='55 22 * * *', # every day before midnight, (clean/upsert worst case for data cleaning)
         tags=["Scraping", "Data Engineering"] 
     ) as dag:
     
