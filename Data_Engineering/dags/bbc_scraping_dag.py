@@ -31,7 +31,7 @@ def get_scrape_historical_limit(**kwargs):
         s3_bucket_name = parser.get('aws', 's3_bucket_name')
 
         s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        s3_bucket = s3_client.list_objects_v2(Bucket=s3_bucket_name, StartAfter ="raw-data/")
+        s3_bucket = s3_client.list_objects(Bucket=s3_bucket_name, Prefix="raw-data/")
         
         return "Contents" not in s3_bucket
 
@@ -252,6 +252,7 @@ def scrape_bbc_articles(**kwargs):
         
         
     def get_article_data(article, latest_news, menu_tab, submenu_tab, scrape_date):
+        nonlocal VISITED_ARTICLES
         
         # new hybrid way
         is_latest_news = article[0] in latest_news
@@ -852,10 +853,11 @@ default_args = {
 }
 
 with DAG(
-        dag_id='scrape_bbc',
+        dag_id='scrape_bbc_daily',
         default_args=default_args,
-        schedule_interval='55 22 * * *', # every day before midnight, (clean/upsert worst case for data cleaning)
+        schedule_interval='59 22 * * *', # every day before midnight, (clean/upsert worst case for data cleaning)
         tags=["Scraping", "Data Engineering"] 
     ) as dag:
     
     get_scrape_historical_limit() >> scrape_bbc_articles() >> upload_scraped_data()
+    
