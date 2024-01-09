@@ -1,26 +1,19 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.decorators import task
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import ChromiumOptions
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, ElementNotInteractableException, WebDriverException
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from boto3 import client as boto3_client
 import logging    
+from dateutil.relativedelta import relativedelta
+import configparser
+import os
+from datetime import date
 
 
 @task(task_id="get_scrape_historical_limit")
 def get_scrape_historical_limit(**kwargs):
-    
+        
     
     def is_empty_s3_bucket():
-        # to be stored in config.conf
-        import boto3
-        import configparser
-        import os
         
         parser = configparser.ConfigParser()
         parser.read(os.path.join(os.path.dirname(__file__), '../config/config.conf'))
@@ -30,15 +23,13 @@ def get_scrape_historical_limit(**kwargs):
         aws_secret_key = parser.get('aws', 'aws_secret_key')
         s3_bucket_name = parser.get('aws', 's3_bucket_name')
 
-        s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+        s3_client = boto3_client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         s3_bucket = s3_client.list_objects(Bucket=s3_bucket_name, Prefix="raw-data/")
         
         return "Contents" not in s3_bucket
 
 
     def get_scrape_date(is_empty_s3_bucket):
-        from datetime import date
-        from dateutil.relativedelta import relativedelta
 
         if not is_empty_s3_bucket:
             
@@ -57,6 +48,22 @@ def get_scrape_historical_limit(**kwargs):
 @task(task_id="scrape_bbc_articles")
 def scrape_bbc_articles(**kwargs):
     
+    from concurrent.futures import ThreadPoolExecutor as thread_executor
+    from itertools import repeat
+    import requests
+    from bs4 import BeautifulSoup
+    from lxml import etree
+    import dateparser
+    import pandas as pd
+    from selenium import webdriver
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.chrome.options import ChromiumOptions
+    from selenium.webdriver.common.action_chains import ActionChains
+    from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, ElementNotInteractableException, WebDriverException
+    from selenium.webdriver.support.wait import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+
     ACTIVE_MENU = None
     ACTIVE_SUBMENU = None
    
@@ -269,9 +276,6 @@ def scrape_bbc_articles(**kwargs):
     def gather_data_from_page(driver, root_tab, menu_tab, submenu_tab, scrape_date):
         
         # new hybrid approach
-        from concurrent.futures import ThreadPoolExecutor as thread_executor
-        from itertools import repeat
-
         cards_XPATH = '//a[contains(@class, "gs-c-promo-heading")]' 
         latest_news_XPATH = '//div[@class="gs-o-media__body"]/h3/a' 
         
@@ -371,10 +375,6 @@ def scrape_bbc_articles(**kwargs):
         nonlocal SCRAPED_DATA
         nonlocal VISITED_ARTICLES
         
-        import requests
-        from bs4 import BeautifulSoup
-        from lxml import etree
-        
         logging.info("Currently at article: %s", uri)
         article_response = requests.get(uri)
         article_bs = BeautifulSoup(article_response.content, 'html.parser')
@@ -434,16 +434,12 @@ def scrape_bbc_articles(**kwargs):
 
     def get_date_posted(dom):
         
-        import dateparser
-        
         date_posted_XPATH = '//time' #convert to datetime
       
         date_posted = dom.xpath(date_posted_XPATH)
         # date is always existing unless video, if no date element should not be gathered -> return today + 10
         if not date_posted:
-            from dateutil.relativedelta import relativedelta
-            from datetime import date
-            
+
             return (date.today() + relativedelta(days=10)).strftime('%Y-%m-%d')
         
         else:
@@ -524,8 +520,6 @@ def scrape_bbc_articles(**kwargs):
 
     def get_date_posted(driver):
     
-        import dateparser
-        
         try:
             date_posted_XPATH = '//time' #convert to datetime
             WebDriverWait(driver, 10).until(
@@ -714,9 +708,6 @@ def scrape_bbc_articles(**kwargs):
     
     def save_scrapped_data(SCRAPED_DATA):
         
-        import pandas as pd
-        from datetime import date
-        
         bbc_df = pd.DataFrame().from_dict(SCRAPED_DATA)
         
         file_name = f"BBC_DATA_{date.today().strftime('%Y-%m-%d')}.csv"
@@ -815,16 +806,13 @@ def scrape_bbc_articles(**kwargs):
 @task(task_id="upload_scraped_data")
 def upload_scraped_data(**kwargs):
     
+    from boto3.s3.transfer import S3Transfer
+    
     task_instance = kwargs['ti']
     scraped_data_info = task_instance.xcom_pull(task_ids="scrape_bbc_articles")
     file_name = scraped_data_info["name"]
     file_path = scraped_data_info["path"]
     
-    import boto3
-    from boto3.s3.transfer import S3Transfer
-    import configparser
-    import os
-        
     parser = configparser.ConfigParser()
     parser.read(os.path.join(os.path.dirname(__file__), '../config/config.conf'))
 
@@ -833,7 +821,7 @@ def upload_scraped_data(**kwargs):
     aws_secret_key = parser.get('aws', 'aws_secret_key')
     s3_bucket_name = parser.get('aws', 's3_bucket_name')
     
-    s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+    s3_client = boto3_client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
 
     transfer = S3Transfer(s3_client)
     

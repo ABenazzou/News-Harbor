@@ -8,6 +8,10 @@ import logging
 @task(task_id="get_uncleaned_raw_files")
 def get_uncleaned_raw_files():
     
+    import boto3
+    import configparser
+    import os
+    
     
     def get_data_files_from_s3_folder(s3_client, s3_folder):
         
@@ -21,11 +25,7 @@ def get_uncleaned_raw_files():
             if ".csv" in file["Key"]: result.add(file["Key"])
         
         return result
-
     
-    import boto3
-    import configparser
-    import os
         
     parser = configparser.ConfigParser()
     parser.read(os.path.join(os.path.dirname(__file__), '../config/config.conf'))
@@ -44,14 +44,18 @@ def get_uncleaned_raw_files():
         mapping_file = file.replace("raw-data/", "clean-data/").replace(".csv", "_cleaned.csv")
         if mapping_file not in clean_raw_files: unclean_files.add(file)
     
-    logging.info("Unclean Files: %s", unclean_files)
-    
     return unclean_files
 
 
 @task(task_id="clean_data")
 def clean_data(**kwargs):
-
+    
+    import pandas as pd
+    import boto3
+    import configparser
+    import os
+    from io import StringIO
+    
     
     def clean_authors(authors_record):
     
@@ -96,8 +100,6 @@ def clean_data(**kwargs):
         
         
     def clean_csv(obj_key, csv_file):
-        
-        import pandas as pd
         
         df = pd.read_csv(csv_file)
         logging.info("Read File %s", obj_key)
@@ -146,11 +148,6 @@ def clean_data(**kwargs):
             "path": csv_path
         }
         
-        
-    import boto3
-    import configparser
-    import os
-    from io import StringIO
     
     task_instance = kwargs['ti']
     unclean_files = task_instance.xcom_pull(task_ids="get_uncleaned_raw_files")
