@@ -121,7 +121,7 @@ def clean_data(**kwargs):
         # fulltext is clean, na to be filled
         
         # topics needs to be fixed => additional '' in the file
-        df['topic'] = df['topics'].apply(lambda record: clean_array(record))
+        df['topics'] = df['topics'].apply(lambda record: clean_array(record))
         
         # images needs to be fixed => additional '' in the file
         df['images'] = df['images'].apply(lambda record: clean_array(record))
