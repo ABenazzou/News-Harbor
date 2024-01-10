@@ -20,8 +20,8 @@ def get_uncleaned_raw_files():
         
         if "Contents" not in s3_bucket: return result
         
-        clean_files = s3_bucket["Contents"]
-        for file in clean_files:
+        files = s3_bucket["Contents"]
+        for file in files:
             if ".csv" in file["Key"]: result.add(file["Key"])
         
         return result
@@ -110,7 +110,7 @@ def clean_data(**kwargs):
         # no need to cast at this step as we are not loading to mongoDB yet for types
         
         # RENAME COLS
-        df.rename(columns={'submenu': 'subcategory', 'menu': 'category'}, inplace=True)
+        df.rename(columns={'submenu': 'subcategory', 'menu': 'category', 'id': 'uri'}, inplace=True)
 
         # id is clean and full
         # title is clean
