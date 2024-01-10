@@ -6,3 +6,4 @@ dateparser>=1.2.0,<1.3.0  # https://github.com/scrapinghub/dateparser
 requests>=2.31.0,<2.32.0  # https://github.com/psf/requests
 beautifulsoup4>=4.12.2,<4.13.0  # null
 lxml>=5.1.0,<5.2.0  # https://github.com/lxml/lxml
+pymongo>=4.6.1,<4.7.0  # 
