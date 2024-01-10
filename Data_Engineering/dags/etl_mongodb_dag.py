@@ -175,8 +175,8 @@ with DAG(
         external_dag_id='clean_data_daily',
         external_task_id='upload_clean_data',
         allowed_states=['success'],
-        check_existence=True
-        # execution_delta default is the same execution date as the current dag
+        check_existence=True,
+        execution_delta=timedelta(minutes=25)
     )
     
     wait_for_cleaning_task >> identify_delta_load() >> extract_transform_and_load_data()

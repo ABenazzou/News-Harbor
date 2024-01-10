@@ -229,8 +229,8 @@ with DAG(
         external_dag_id='scrape_bbc_daily',
         external_task_id='upload_scraped_data',
         allowed_states=['success'],
-        check_existence=True
-        # execution_delta default is the same execution date as the current dag
+        check_existence=True,
+        execution_delta=timedelta(minutes=31)
     )
     
     wait_for_scraping_task >> get_uncleaned_raw_files() >> clean_data() >> upload_clean_data()
