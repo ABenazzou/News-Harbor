@@ -1,12 +1,8 @@
+    
 from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
 
-
-class SearchQuery(BaseModel):
-    full_text_search: Optional[str] = None
-    
-    
 class Article(BaseModel):
     id: str
     uri: str 
@@ -20,7 +16,7 @@ class Article(BaseModel):
     images: Optional[List[str]]
     topics: Optional[List[str]] 
     
-    class Config:
+    class ConfigDict:
         json_schema_extra = {
             "example": {
                 "uri": "https://www.bbc.co.uk/news/example",
@@ -37,11 +33,3 @@ class Article(BaseModel):
         }
     
     
-
-class ArticleCollection(BaseModel):
-    """
-    A container holding a list of `Article` instances.
-    """
-    
-    total: int
-    articles: List[Article]
