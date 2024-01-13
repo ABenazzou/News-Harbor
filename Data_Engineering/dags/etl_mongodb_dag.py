@@ -40,9 +40,11 @@ def identify_delta_load():
     port = parser.get('mongodb', 'port')
     username = parser.get('mongodb', 'username')
     password = parser.get('mongodb', 'password')
+    tls = parser.get('mongodb', 'tlsClientCertificate')
+    tlsCA = parser.get('mongodb', 'tlsCA')
     
     connection_string = f"mongodb://{username}:{password.replace('AT', '%40')}@{host_address}:{port}/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.1"
-    client = MongoClient(connection_string)
+    client = MongoClient(connection_string, tls=True, tlsCertificateKeyFile=tls, tlsCAFile=tlsCA, tlsAllowInvalidCertificates=True)
     news_harbor_db = client["News-Harbor"]
     imported_files_collection = news_harbor_db["imported-files"]
     
@@ -96,7 +98,10 @@ def extract_transform_and_load_data(**kwargs):
         for record in data:
             schemaless_record = {}
             for key, value in record.items():
-                if type(value) == str and value == "N/A" or type(value) == list and "N/A" in value:
+                if type(value) == list and "" in value:
+                    value = [item for item in value if item != ""]
+                    
+                if type(value) == str and value in ("N/A", "nan") or type(value) == list and "N/A" in value:
                     continue
                 else:
                     schemaless_record[key] = value
@@ -130,9 +135,11 @@ def extract_transform_and_load_data(**kwargs):
     port = parser.get('mongodb', 'port')
     username = parser.get('mongodb', 'username')
     password = parser.get('mongodb', 'password')
-    
+    tls = parser.get('mongodb', 'tlsClientCertificate')
+    tlsCA = parser.get('mongodb', 'tlsCA')
+
     connection_string = f"mongodb://{username}:{password.replace('AT', '%40')}@{host_address}:{port}/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.1"
-    client = MongoClient(connection_string)
+    client = MongoClient(connection_string, tls=True, tlsCertificateKeyFile=tls, tlsCAFile=tlsCA, tlsAllowInvalidCertificates=True)
     news_harbor_db = client["News-Harbor"]
     bbc_news_collection = news_harbor_db["bbc-articles"]
     imported_files_collection = news_harbor_db["imported-files"]
@@ -155,7 +162,7 @@ default_args = {
     'owner': 'Adnane',
     'depends_on_past': False, # Previous Fails doesn't stop it from triggering
     'start_date': datetime(2024, 1, 9), # January 8th, 2024 
-    'end_date': datetime(2024, 1, 13), # January 13th, 2024
+    'end_date': datetime(2024, 1, 12), # January 13th, 2024
     'email': ['adnanebenzo194@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,

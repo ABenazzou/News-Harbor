@@ -832,7 +832,7 @@ default_args = {
     'owner': 'Adnane',
     'depends_on_past': False, # Previous Fails doesn't stop it from triggering
     'start_date': datetime(2024, 1, 8), # January 8th, 2024 
-    'end_date': datetime(2024, 1, 13), # January 13th, 2024, daily collections as full 3 months run was triggered manually through airflow ui
+    'end_date': datetime(2024, 1, 12), # January 12th, 2024, daily collections as full 3 months run was triggered manually through airflow ui
     'email': ['adnanebenzo194@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
