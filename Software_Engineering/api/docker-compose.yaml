@@ -1,0 +1,9 @@
+version: '3'
+services:
+  news_harbor_api:
+    build: .
+    container_name: "news-harbor-api-container"
+    ports:
+      - "5800:5800"
+    volumes:
+      - /home/abenazzou/conf/:/config # mapping where pem files exist

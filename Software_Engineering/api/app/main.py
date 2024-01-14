@@ -46,5 +46,5 @@ app.add_middleware(
 app.include_router(articles_router, tags=["articles"])
 app.include_router(categories_router, tags=["categories"])
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, port=int(config["port"]), host=config["host"])
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", reload=True, port=int(config["port"]), host=config["host"])
