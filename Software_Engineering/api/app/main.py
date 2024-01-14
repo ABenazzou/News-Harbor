@@ -1,7 +1,7 @@
 from fastapi import FastAPI 
 from dotenv import dotenv_values
 from motor.motor_asyncio import AsyncIOMotorClient
-from routes import articles_router, categories_router
+from routes import articles_router, filters_router
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -44,4 +44,4 @@ app.add_middleware(
 )
     
 app.include_router(articles_router, tags=["articles"], prefix="/api")
-app.include_router(categories_router, tags=["categories"], prefix="/api")
+app.include_router(filters_router, tags=["filters"], prefix="/api")
