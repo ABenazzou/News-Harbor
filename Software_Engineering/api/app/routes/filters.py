@@ -27,10 +27,10 @@ async def list_filters(request: Request):
     ]
    
     try:
-        filters = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(None)[0]
+        filters = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(None)
         
     except Exception as e:
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    return filters
+    return filters[0]
