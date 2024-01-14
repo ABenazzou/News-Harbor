@@ -40,6 +40,6 @@ jobs:
       run: |
         cp -r ./Software_Engineering/api/* ~/Desktop/News-Harbor-Backend-Deploy/
         cp ~/conf/.env ~/Desktop/News-Harbor-Backend-Deploy/app
-        cd ~/Desktop/News-Harbor-Backend-Deploy/app
+        cd ~/Desktop/News-Harbor-Backend-Deploy
         docker-compose -f docker-compose.yaml down
         docker-compose -f docker-compose.yaml up -d --build
