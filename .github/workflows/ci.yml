@@ -24,6 +24,11 @@ jobs:
         ls -a
         docker-compose -f docker-compose-test.yaml up -d --build
         docker exec -it news-harbor-api-test-container pytest
+    
+    - name: Cleanup Docker Compose
+      if: always()
+      working-directory: ./Software_Engineering/api
+      run: |
         docker-compose -f docker-compose-test.yaml down
 
   deploy:
