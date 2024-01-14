@@ -43,5 +43,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
     
-app.include_router(articles_router, tags=["articles"])
-app.include_router(categories_router, tags=["categories"])
+app.include_router(articles_router, tags=["articles"], prefix="/api")
+app.include_router(categories_router, tags=["categories"], prefix="/api")
