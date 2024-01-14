@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Query, Body, HTTPException
 from models import ArticleCollection, Article, SearchQuery
-from typing import Optional
+from typing import Optional, List
 from bson import ObjectId
 from datetime import datetime, date
 
@@ -16,10 +16,10 @@ async def list_articles(request: Request,
                         limit: int = Query(10, alias="limit"),
                         sort_by: str = Query("date_posted"),
                         sort_order: str = Query("desc"),
-                        category: str = Query(None),
-                        subcategory: str = Query(None),
-                        author: str = Query(None),
-                        topic: str = Query(None),
+                        categories: List[str] = Query(None),
+                        subcategories: List[str] = Query(None),
+                        authors: List[str] = Query(None),
+                        topics: List[str] = Query(None),
                         date_posted: date = Query(None),
                         ):
     
@@ -32,13 +32,13 @@ async def list_articles(request: Request,
     sort_order = 1 if sort_order == "asc" else -1
     query = {}
     
-    if category: query["category"] = category
+    if categories: query["category"] = {"$in": categories}
     
-    if subcategory: query["subcategory"] = subcategory
+    if subcategories: query["subcategory"] = {"$in": subcategories}
     
-    if author: query["authors"] = author
+    if authors: query["authors"] = {"$in": authors}
     
-    if topic: query["topics"] = topic
+    if topics: query["topics"] = {"$in": topics}
     
     if date_posted: query["date_posted"] = datetime.combine(date_posted, datetime.min.time())
     

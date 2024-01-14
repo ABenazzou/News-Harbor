@@ -29,15 +29,24 @@ def test_list_articles_valid_with_parameters(client):
         "limit": 3,
         "sort_by": "title",
         "sort_order": "asc",
-        "category": "World",
-        "subcategory": "Africa",
-        "author": "Damian Zane",
-        "topic": "Ethiopia",
+        "categories": "World",
+        "subcategories": "Africa",
+        "authors": ["Damian Zane", "PA Media"],
+        "topics": "Ethiopia",
         "date_posted": "2024-01-09"
     }
-    query_params = '&'.join([f"{k}={v}" for k,v in test_params.items()])
     
-    response = client.post(f"/api/articles?{query_params}", json=test_params)
+    query_params = []
+    for key, value in test_params.items():
+        if isinstance(value, list):
+            for item in value:
+                query_params.append(f"{key}={item}")
+        else:
+            query_params.append(f"{key}={value}")
+            
+    query_string = '&'.join(query_params)
+    
+    response = client.post(f"/api/articles?{query_string}", json=test_params)
     assert response.status_code == 200
     assert "articles" in response.json()
     
