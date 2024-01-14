@@ -21,6 +21,7 @@ jobs:
       working-directory: ./Software_Engineering/api
       run: |
         cp ~/conf/.env ./app
+        ls -a
         docker-compose -f docker-compose-test.yaml up -d --build
         docker exec -it news-harbor-api-test-container pytest
         docker-compose -f docker-compose-test.yaml down
