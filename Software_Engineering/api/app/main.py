@@ -45,4 +45,3 @@ app.add_middleware(
     
 app.include_router(articles_router, tags=["articles"])
 app.include_router(categories_router, tags=["categories"])
-
