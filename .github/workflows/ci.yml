@@ -17,21 +17,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-
     - name: Install dependencies
       working-directory: ./Software_Engineering/api
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run tests
-      working-directory: ./Software_Engineering/api
-      run: |
-        pytest
+        cp ~/conf/.env ./app
+        docker-compose -f docker-compose-test.yaml up -d --build
+        docker exec -it news-harbor-api-test-container pytest
+        docker-compose -f docker-compose-test.yaml down
 
   deploy:
     needs: test
@@ -43,6 +35,5 @@ jobs:
         cp -r ./Software_Engineering/api/* ~/Desktop/News-Harbor-Backend-Deploy/
         cp ~/conf/.env ~/Desktop/News-Harbor-Backend-Deploy/app
         cd ~/Desktop/News-Harbor-Backend-Deploy/app
-        docker stop news-harbor-api-container
-        docker rm news-harbor-api-container
-        docker-compose up -d --build
+        docker-compose -f docker-compose.yaml down
+        docker-compose -f docker-compose.yaml up -d --build
