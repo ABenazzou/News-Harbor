@@ -2,8 +2,12 @@ name: FastAPI CI
 
 on:
   push:
+    paths:
+    - Software_Engineering/api/**
     branches: [ main ]
   pull_request:
+    paths:
+    - Software_Engineering/api/**
     branches: [ main ]
 
 jobs:
@@ -34,10 +38,9 @@ jobs:
     steps:
     - name: Deploy Application
       run: |
-        cp -r ./* ~/Desktop/News-Harbor-Backend-Deploy/
+        cp -r ./Software_Engineering/api/* ~/Desktop/News-Harbor-Backend-Deploy/
         cp ~/conf/.env ~/Desktop/News-Harbor-Backend-Deploy/app
         cd ~/Desktop/News-Harbor-Backend-Deploy/app
         docker stop news-harbor-api-container
         docker rm news-harbor-api-container
         docker-compose up -d --build
-        
