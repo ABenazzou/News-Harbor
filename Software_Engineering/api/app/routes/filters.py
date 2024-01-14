@@ -6,36 +6,24 @@ router = APIRouter()
 @router.get("/filters", response_description="List all unique filters options")
 async def list_filters(request: Request):
     pipeline = [
-        {
-            "$unwind": "$topics"
-        },
-        {
-            "$group": {
-                "_id": None,
-                "uniqueCategories": {"$addToSet": "$category"},
-                "uniqueSubcategories": {"$addToSet": "$subcategory"},
-                "uniqueTopics": {"$addToSet": "$topics"},
-            }
-        },
-        {
-            "$unwind": "$authors"
-        },
+        {"$unwind": "$topics"},
+        {"$unwind": "$authors"},
         {
             "$group": {
-                "_id": None,
-                "uniqueCategories": {"$first": "$uniqueCategories"},
-                "uniqueSubcategories": {"$first": "$uniqueSubcategories"},
-                "uniqueTopics": {"$first": "$uniqueTopics"},
-                "uniqueAuthors": {"$addToSet": "$authors"},
-            }
-        },
-        {
-            "$project": {
                 "_id": 0,
-                "categories": "$uniqueCategories",
-                "subcategories": "$uniqueSubcategories",
-                "topics": "$uniqueTopics",
-                "authors": "$uniqueAuthors"
+                "categories": {"$addToSet": "$category"},
+                "subcategories": {"$addToSet": "$subcategory"},
+                "topics": {"$addToSet": "$topics"},
+                "authors": {"$addToSet": "$authors"}
+            }
+        },
+        {
+            '$project': {
+                '_id': 0,
+                'categories': 1,
+                'subcategories': 1,
+                'topics': 1,
+                'authors': 1
             }
         }
     ]
