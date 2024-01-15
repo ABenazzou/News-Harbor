@@ -20,7 +20,8 @@ async def list_articles(request: Request,
                         subcategories: List[str] = Query(None),
                         authors: List[str] = Query(None),
                         topics: List[str] = Query(None),
-                        date_posted: date = Query(None),
+                        start_date: date = Query(None),
+                        end_date: date = Query(None)
                         ):
     
     if limit < 1 or skip < 0:
@@ -40,7 +41,16 @@ async def list_articles(request: Request,
     
     if topics: query["topics"] = {"$in": topics}
     
-    if date_posted: query["date_posted"] = datetime.combine(date_posted, datetime.min.time())
+    date_range_query = {}
+
+    if start_date:
+        date_range_query["$gte"] = datetime.combine(start_date, datetime.min.time())
+
+    if end_date:
+        date_range_query["$lte"] = datetime.combine(end_date, datetime.max.time())
+
+    if date_range_query:
+        query["date_posted"] = date_range_query
     
     if search_query and search_query.full_text_search: query["$text"] = {"$search": f'\"{search_query.full_text_search}\"'}  
     

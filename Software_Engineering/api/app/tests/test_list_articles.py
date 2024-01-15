@@ -33,7 +33,8 @@ def test_list_articles_valid_with_parameters(client):
         "subcategories": "Africa",
         "authors": ["Damian Zane", "PA Media"],
         "topics": "Ethiopia",
-        "date_posted": "2024-01-09"
+        "start_date": "2024-01-08",
+        "end_date": "2024-01-08"
     }
     
     query_params = []
