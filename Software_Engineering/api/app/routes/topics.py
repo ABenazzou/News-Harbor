@@ -52,7 +52,7 @@ async def list_topics(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    if topics[0]:
+    if topics:
         topics[0]["topics"].sort()
         return topics[0]
     

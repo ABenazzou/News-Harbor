@@ -49,7 +49,7 @@ async def list_subcategories(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    if subcategories[0]:
+    if subcategories:
         subcategories[0]["subcategory"].sort()
         return subcategories[0]
     

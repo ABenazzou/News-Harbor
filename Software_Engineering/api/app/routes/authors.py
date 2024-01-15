@@ -52,7 +52,7 @@ async def list_authors(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    if authors[0]:
+    if authors:
         authors[0]["authors"].sort()
         return authors[0]
     

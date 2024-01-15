@@ -49,7 +49,7 @@ async def list_categories(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    if categories[0]:
+    if categories:
         categories[0]["category"].sort()
         return categories[0]
 
