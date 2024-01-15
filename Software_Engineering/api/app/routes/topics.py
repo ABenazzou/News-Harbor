@@ -21,12 +21,10 @@ async def list_topics(request: Request,
     
     if authors: query["authors"] = {"$in": authors}
     
-    pipeline = []
-    
     if search_query and search_query.full_text_search:
-        pipeline.append({"$search": f'\"{search_query.full_text_search}\"'})
+        query["$text"] = {"$search": f'\"{search_query.full_text_search}\"'}
     
-    steps = [
+    pipeline = [
         {
             "$match": query
         },
@@ -47,8 +45,6 @@ async def list_topics(request: Request,
         }
     ]
     
-    for step in steps: pipeline.append(step)
-           
     try:
         topics = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(None)
         
@@ -56,4 +52,8 @@ async def list_topics(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    return topics[0] if topics else []
+    if topics[0]:
+        topics[0]["topics"].sort()
+        return topics[0]
+    
+    return {"topics": []}

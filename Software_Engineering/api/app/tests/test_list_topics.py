@@ -1,9 +1,10 @@
 def test_list_topics_valid(client):
     
-    response = client.get("/api/topics")
+    response = client.post("/api/topics")
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert isinstance(response_json, dict)
+    assert "topics" in response_json
     
 
 def test_list_topics_valid_with_params(client):
@@ -26,4 +27,5 @@ def test_list_topics_valid_with_params(client):
     response = client.post(f"/api/topics?{query_string}", json=test_params)
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert isinstance(response_json, dict)
+    assert "topics" in response_json

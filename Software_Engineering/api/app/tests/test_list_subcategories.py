@@ -1,9 +1,10 @@
 def test_list_subcategories_valid(client):
     
-    response = client.get("/api/subcategories")
+    response = client.post("/api/subcategories")
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert isinstance(response_json, dict)
+    assert "subcategory" in response_json
     
 
 def test_list_subcategories_valid_with_params(client):
@@ -24,6 +25,8 @@ def test_list_subcategories_valid_with_params(client):
     query_string = '&'.join(query_params)
     
     response = client.post(f"/api/subcategories?{query_string}", json=test_params)
-    assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert response.status_code == 200
+    assert isinstance(response_json, dict)
+    assert "subcategory" in response_json
+    

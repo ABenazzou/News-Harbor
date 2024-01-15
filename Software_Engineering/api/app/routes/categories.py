@@ -21,12 +21,10 @@ async def list_categories(request: Request,
     
     if authors: query["authors"] = {"$in": authors}
     
-    pipeline = []
-    
     if search_query and search_query.full_text_search:
-        pipeline.append({"$search": f'\"{search_query.full_text_search}\"'})
+        query["$text"] = {"$search": f'\"{search_query.full_text_search}\"'}
     
-    steps = [
+    pipeline = [
         {
             "$match": query
         },
@@ -43,8 +41,6 @@ async def list_categories(request: Request,
             }
         }
     ]
-    
-    for step in steps: pipeline.append(step)
            
     try:
         categories = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(None)
@@ -53,4 +49,8 @@ async def list_categories(request: Request,
         print(f"Error querying database: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while processing the request")
 
-    return categories[0] if categories else []
+    if categories[0]:
+        categories[0]["category"].sort()
+        return categories[0]
+
+    return {"category": []}

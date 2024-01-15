@@ -1,15 +1,17 @@
-def test_list_categories_valid(client):
+def test_list_authors_valid(client):
     
-    response = client.get("/api/categories")
+    response = client.post("/api/authors")
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert isinstance(response_json, dict)
+    assert "authors" in response_json
+
     
 
-def test_list_categories_valid_with_params(client):
+def test_list_authors_valid_with_params(client):
     
     test_params = {
-        "topics": "Ethiopia",
+        "categories": "World",
         "subcategories": "Africa",
     }
     
@@ -23,7 +25,8 @@ def test_list_categories_valid_with_params(client):
             
     query_string = '&'.join(query_params)
     
-    response = client.post(f"/api/categories?{query_string}", json=test_params)
+    response = client.post(f"/api/authors?{query_string}", json=test_params)
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list)
+    assert isinstance(response_json, dict)
+    assert "authors" in response_json
