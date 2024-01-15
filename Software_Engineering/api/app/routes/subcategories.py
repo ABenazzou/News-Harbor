@@ -31,12 +31,6 @@ async def list_subcategories(request: Request,
             "$match": query
         },
         {
-            "$group": {
-                "_id": 0,
-                "topics": {"$addToSet": "$topics"}
-            }
-        },
-        {
             '$project': {
                 '_id': 0,
                 'subcategory': 1
