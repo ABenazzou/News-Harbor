@@ -192,7 +192,7 @@ async def get_authors_network(request: Request):
             elif count_so_far < 11:
                 group = "collaborative authors" # big degrees
             
-            else:
+            elif author in top_10_frequent_authors:
                 group = "consistent authors" # big articles number
             
             if count_so_far < 11:
