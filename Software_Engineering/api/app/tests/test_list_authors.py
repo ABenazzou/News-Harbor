@@ -61,3 +61,13 @@ def test_list_authors_frequency_valid_with_params(client):
     assert response.status_code == 200
     response_json = response.json()
     assert isinstance(response_json, list)
+    
+    
+def test_list_authors_network_valid(client):
+
+    response = client.get(f"/api/authors/network")
+    assert response.status_code == 200
+    response_json = response.json()
+    assert isinstance(response_json, dict)
+    assert "nodes" in response_json
+    assert "links" in response_json
