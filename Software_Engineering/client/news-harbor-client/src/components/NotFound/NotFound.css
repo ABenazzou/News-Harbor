@@ -1,0 +1,4 @@
+.not-found {
+    color: var(--foreground-color);
+    margin-top: 70px;
+}
