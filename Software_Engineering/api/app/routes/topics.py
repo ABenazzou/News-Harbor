@@ -57,3 +57,57 @@ async def list_topics(request: Request,
         return topics[0]
     
     return {"topics": []}
+
+
+@router.post("/topics/frequency", response_description="Lists the frequency of the top 10 topics options narrowed down by queries")
+async def list_topics(request: Request,
+                    search_query: Optional[SearchQuery] = Body(default=None),
+                    categories: List[str] = Query(None),
+                    subcategories: List[str] = Query(None),
+                    authors: List[str] = Query(None),
+                    ):
+    
+    query = {}
+
+    if categories: query["category"] = {"$in": categories}
+    
+    if subcategories: query["subcategory"] = {"$in": subcategories}
+    
+    if authors: query["authors"] = {"$in": authors}
+    
+    if search_query and search_query.full_text_search:
+        query["$text"] = {"$search": f'\"{search_query.full_text_search}\"'}
+    
+    pipeline = [
+        {
+            "$match": query
+        },
+        {
+            "$unwind": "$topics"
+        },
+        {
+            "$group": {
+                "_id": "$topics",
+                "count": {"$sum": 1}
+            }
+        },
+        {
+            "$sort": {"count": -1}
+        },
+        {
+        "$project": {
+            "topic": "$_id",
+            "_id": 0,  # exclude the grouping _id
+            "count": 1
+        }
+    }
+    ]
+    
+    try:
+        topics = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(10)
+        
+    except Exception as e:
+        print(f"Error querying database: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error while processing the request")
+
+    return topics
