@@ -60,7 +60,7 @@ async def list_topics(request: Request,
 
 
 @router.post("/topics/frequency", response_description="Lists the frequency of the top 10 topics options narrowed down by queries")
-async def list_topics(request: Request,
+async def list_topics_frequency(request: Request,
                     search_query: Optional[SearchQuery] = Body(default=None),
                     categories: List[str] = Query(None),
                     subcategories: List[str] = Query(None),
