@@ -170,6 +170,9 @@ async def list_categories_trends(request: Request,
                 'categories': 1,
                 '_id': 0
             }
+        },
+        {
+            '$sort': {'date': 1}
         }
     ]
            

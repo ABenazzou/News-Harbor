@@ -210,6 +210,9 @@ async def list_topics_trends(request: Request,
                 },
                 'topics': 1
             }
+        },
+        {
+            '$sort': {'date': 1}
         }
     ]
 
