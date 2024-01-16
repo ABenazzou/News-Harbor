@@ -46,7 +46,7 @@
     transform: translateX(24px);
 }
 
-.nav-link.active{
+.nav-link.active-custom {
     text-decoration: None;
     font-weight: bold;
     pointer-events: none;
@@ -56,7 +56,15 @@
     cursor: default;
 }
 
-
 .nav-link:hover {
     text-decoration: None;
+}
+
+.nav-link.inactive-custom:hover {
+    cursor: pointer;
+    color: var(--nav-inactive-hover) !important;
+}
+
+.nav-link.inactive-custom {
+    color: var(--nav-inactive) !important;
 }

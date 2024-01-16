@@ -6,7 +6,10 @@ export const darkThemeStyles = {
   "--datepicker-group-background-color": "#2c2c2c",
   "--btn-bg": "--btn-bg-dark",
   "--btn-text": "--btn-text-dark",
-  "--text-muted-color": "#adb5bd"
+  "--text-muted-color": "#adb5bd",
+  "--nav-inactive-hover": "rgba(255, 255, 255, 0.75)",
+  "--nav-inactive": "#FFFFFF8C"
+
 };
   
 export const lightThemeStyles = {
@@ -17,5 +20,7 @@ export const lightThemeStyles = {
   "--datepicker-group-background-color": "#ffffff",
   "--btn-bg": "--btn-bg-light",
   "--btn-text": "--btn-text-light",
-  "--text-muted-color": "#6c757d"
+  "--text-muted-color": "#6c757d",
+  "--nav-inactive-hover": "rgba(var(--bs-emphasis-color-rgb), 0.8)",
+  "--nav-inactive": "rgba(var(--bs-emphasis-color-rgb), 0.65)"
 };
