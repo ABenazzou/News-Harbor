@@ -150,12 +150,12 @@ async def list_topics_trends(request: Request,
             "$sort": {"count": -1}
         },
         {
-        "$project": {
-            "topic": "$_id",
-            "_id": 0,  # exclude the grouping _id
-            "count": 1
+            "$project": {
+                "topic": "$_id",
+                "_id": 0,  # exclude the grouping _id
+                "count": 1
+            }
         }
-    }
     ]
     
     top_10_topics = await request.app.database["bbc-articles"].aggregate(topics_pipeline).to_list(10)
@@ -171,33 +171,48 @@ async def list_topics_trends(request: Request,
             }
         },
         {
-            "$group": {
-                "_id": {
-                    "date": "$date_posted",
-                    "topic": "$topics"
+            '$group': {
+                '_id': {
+                    'month': {'$month': '$date_posted'},
+                    'year': {'$year': '$date_posted'},
+                    'topic': '$topics'
                 },
-                "count": {"$sum": 1}
+                'count': {'$sum': 1}
             }
         },
         {
-            "$group": {
-                "_id": "$_id.date",
-                "topics": {
-                    "$push": {
-                        "topic": "$_id.topic",
-                        "count": "$count"
+            '$group': {
+                '_id': {
+                    'month': '$_id.month',
+                    'year': '$_id.year'
+                },
+                'topics': {
+                    '$push': {
+                        'topic': '$_id.topic',
+                        'count': '$count'
                     }
                 }
             }
         },
         {
-            "$project": {
-                "_id": 0,
-                "date": "$_id",
-                "topics": 1
+            '$project': {
+                '_id': 0,
+                'date': {
+                    '$dateToString': {
+                        'format': '%Y-%m',
+                        'date': {
+                            '$dateFromParts': {
+                                'year': '$_id.year',
+                                'month': '$_id.month'
+                            }
+                        }
+                    }
+                },
+                'topics': 1
             }
         }
     ]
+
     
     try:
         topics_trends = await request.app.database["bbc-articles"].aggregate(pipeline).to_list(None)

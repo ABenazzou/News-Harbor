@@ -130,18 +130,22 @@ async def list_categories_trends(request: Request,
         {
             "$match": query
         },
-         {
-        '$group': {
-            '_id': {
-                'date': '$date_posted',
-                'category': '$category'
-            },
-            'count': {'$sum': 1}
-        }
+        {
+            '$group': {
+                '_id': {
+                    'month': {'$month': '$date_posted'},
+                    'year': {'$year': '$date_posted'},
+                    'category': '$category'
+                },
+                'count': {'$sum': 1}
+            }
         },
         {
             '$group': {
-                '_id': '$_id.date',
+                '_id': {
+                    'month': '$_id.month',
+                    'year': '$_id.year'
+                },
                 'categories': {
                     '$push': {
                         'category': '$_id.category',
@@ -152,7 +156,17 @@ async def list_categories_trends(request: Request,
         },
         {
             '$project': {
-                'date': '$_id',
+                'date': {
+                    '$dateToString': {
+                        'format': '%Y-%m',
+                        'date': {
+                            '$dateFromParts': {
+                                'year': '$_id.year',
+                                'month': '$_id.month'
+                            }
+                        }
+                    }
+                },
                 'categories': 1,
                 '_id': 0
             }
