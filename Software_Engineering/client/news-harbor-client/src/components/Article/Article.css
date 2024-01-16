@@ -1,21 +1,25 @@
 .article-body {
-    color: var(--foreground-color);
-    margin-top: 90px;
+  color: var(--foreground-color);
+  margin-top: 90px;
 }
 
 .muted {
-    color: var(--text-muted-color) !important;
+  color: var(--text-muted-color) !important;
 }
 
 .authors {
-    text-decoration: underline;
-    font-weight: bold;
-    font-style: italic;
+  text-decoration: underline;
+  font-weight: bold;
+  font-style: italic;
 }
 
 .image-gallery {
-    height: 200px;
-    width: 100%; 
-    object-fit: cover; 
-    cursor: pointer;
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.justify {
+  text-align: justify;
 }

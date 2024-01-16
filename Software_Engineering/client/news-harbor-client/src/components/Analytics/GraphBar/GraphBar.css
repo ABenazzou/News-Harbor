@@ -1,0 +1,19 @@
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 40px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.graph {
+    border: solid 1px;
+    padding: 10px;
+    border-radius: 10%;
+    border-color: var(--foreground-color);
+}

@@ -8,10 +8,9 @@ export const darkThemeStyles = {
   "--btn-text": "--btn-text-dark",
   "--text-muted-color": "#adb5bd",
   "--nav-inactive-hover": "rgba(255, 255, 255, 0.75)",
-  "--nav-inactive": "#FFFFFF8C"
-
+  "--nav-inactive": "#FFFFFF8C",
 };
-  
+
 export const lightThemeStyles = {
   "--background-color": "#ffffff",
   "--foreground-color": "#000000",
@@ -22,5 +21,5 @@ export const lightThemeStyles = {
   "--btn-text": "--btn-text-light",
   "--text-muted-color": "#6c757d",
   "--nav-inactive-hover": "rgba(var(--bs-emphasis-color-rgb), 0.8)",
-  "--nav-inactive": "rgba(var(--bs-emphasis-color-rgb), 0.65)"
+  "--nav-inactive": "rgba(var(--bs-emphasis-color-rgb), 0.65)",
 };

@@ -1,4 +1,7 @@
-#root, html {
+#root,
+html {
   background-color: var(--background-color);
   color: var(--foreground-color);
+  height: 100%;
+  margin: 0;
 }

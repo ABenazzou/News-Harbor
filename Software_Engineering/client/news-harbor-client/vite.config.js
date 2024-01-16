@@ -11,6 +11,7 @@ export default defineConfig({
   },
   publicDir: 'public',
   server:  {
+    port: 5170,
     proxy: {
       '/api': {
         target: "https://newsharbor.abenazzou.com/",
