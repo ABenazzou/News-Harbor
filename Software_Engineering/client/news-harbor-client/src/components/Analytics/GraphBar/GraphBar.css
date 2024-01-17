@@ -11,9 +11,3 @@
   pointer-events: none;
 }
 
-.graph {
-    border: solid 1px;
-    padding: 10px;
-    border-radius: 10%;
-    border-color: var(--foreground-color);
-}

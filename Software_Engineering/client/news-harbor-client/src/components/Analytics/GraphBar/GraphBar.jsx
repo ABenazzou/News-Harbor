@@ -40,8 +40,8 @@ const GraphBar = ({ data, containerId, label, title }) => {
     const foregroundColor = style.getPropertyValue("--foreground-color");
 
     const margin = { top: 20, right: 20, bottom: 80, left: 40 };
-    const width = 400 - margin.left - margin.right; // max width - spacing
-    const height = 300 - margin.top - margin.bottom; // nax height - spacing
+    const width = 500 - margin.left - margin.right; // max width - spacing
+    const height = 400 - margin.top - margin.bottom; // nax height - spacing
 
     // remove nd recreate for no duplicates, to check if i can improve this
     d3.select(`#${containerId}`).select("svg").remove();
@@ -49,6 +49,7 @@ const GraphBar = ({ data, containerId, label, title }) => {
     let svg = d3
       .select(`#${containerId}`)
       .append("svg")
+      .attr("style", `outline: thin solid ${foregroundColor}; padding: 10px; border-radius: 10%; margin-bottom: 10px`)
       .attr("width", width + margin.left + margin.right) // svg width = initial vals 500 400
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
