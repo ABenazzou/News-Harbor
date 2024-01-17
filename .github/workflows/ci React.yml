@@ -29,6 +29,6 @@ jobs:
     - name: Deploy To PM2
       working-directory: ./Software_Engineering/client
       run: |
-        cp -r ./* ~/Desktop/News-Harbor-Client/
+        cp -r ./news-harbor-client/* ~/Desktop/News-Harbor-Client/
         cd ~/Desktop/News-Harbor-Client/
         npm install
