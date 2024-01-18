@@ -1,6 +1,6 @@
 # Project Name
 
-This repository contains the codebase for [Project Name]. It includes various components related to data engineering, databases, and software engineering.
+This repository contains the codebase for News-Harbor. It includes various components related to data engineering, databases, and software engineering.
 
 ## Table of Contents
 
