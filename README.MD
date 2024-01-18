@@ -7,7 +7,6 @@ This repository contains the codebase for News-Harbor. It includes various compo
 - [Introduction](#introduction)
 - [Project Structure](#project-structure)
 - [Workflows](#workflows)
-- [Changelog](#changelog)
 
 ## Introduction
 
@@ -26,6 +25,8 @@ The repository is organized into different directories, each serving a specific 
 - **Data_Engineering**: Data engineering-related code (Airflow DAGS) and documentation.
 
 - **Software_Engineering**: Code and documentation related to software engineering tasks [API & Client]. API Includes Swagger API documentation as html file.
+
+- **News Harbor Work Documentation**: Document explaining the work done and reasons behind it.
 
 ## Workflows
 
