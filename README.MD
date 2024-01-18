@@ -11,7 +11,9 @@ This repository contains the codebase for News-Harbor. It includes various compo
 
 ## Introduction
 
-Brief introduction to the project.
+In an era dominated by information, harnessing and analyzing data has become a pivotal aspect of decision-making and innovation. Additionally, The rapid evolution of technology has enabled us to access an overwhelming amount of information, particularly through online news platforms.
+
+The project in our hands, titled "News Harbor," represents a comprehensive project to leverage  the volume of data that is increasingly overwhelming day by day.
 
 ## Project Structure
 
